@@ -11,24 +11,59 @@ public class CustomerService {
         // Test Cases
 
         // Test 1
-        // Scenario: 
-        // Expected Result: 
+        // Scenario: Create a queue with an invalid maximum size.
+        // Expected Result: The maximum size should default to 10.
         Console.WriteLine("Test 1");
-
-        // Defect(s) Found: 
+        var cs = new CustomerService(0);
+        Console.WriteLine(cs);
+        // Defect(s) Found: No defect found. The invalid maximum size correctly defaults to 10.
 
         Console.WriteLine("=================");
 
         // Test 2
-        // Scenario: 
-        // Expected Result: 
+        // Scenario: Create a queue with a valid maximum size.
+        // Expected Result: The queue should use the size provided.
         Console.WriteLine("Test 2");
-
-        // Defect(s) Found: 
+        cs = new CustomerService(3);
+        Console.WriteLine(cs);
+        // Defect(s) Found: No defect found. The valid maximum size is stored correctly.
 
         Console.WriteLine("=================");
 
-        // Add more Test Cases As Needed Below
+        // Test 3
+        // Scenario: Try to serve a customer when the queue is empty.
+        // Expected Result: An error message should be displayed.
+        Console.WriteLine("Test 3");
+        cs = new CustomerService(3);
+        cs.ServeCustomer();
+        // Defect(s) Found: ServeCustomer did not check if the queue was empty before accessing index 0.
+
+        Console.WriteLine("=================");
+
+        // Test 4
+        // Scenario: Add customers until the queue reaches the maximum size.
+        // Expected Result: The queue should stop accepting customers when it is full.
+        Console.WriteLine("Test 4");
+        cs = new CustomerService(2);
+        cs.AddNewCustomer();
+        cs.AddNewCustomer();
+        Console.WriteLine(cs);
+        cs.AddNewCustomer();
+        // Defect(s) Found: The full queue condition used > instead of >=, allowing one extra customer.
+
+        Console.WriteLine("=================");
+
+        // Test 5
+        // Scenario: Add two customers and serve one of them.
+        // Expected Result: The first customer added should be the first customer served.
+        Console.WriteLine("Test 5");
+        cs = new CustomerService(2);
+        cs.AddNewCustomer();
+        cs.AddNewCustomer();
+        cs.ServeCustomer();
+        Console.WriteLine(cs);
+        // Defect(s) Found: ServeCustomer removed the first customer before saving and displaying it,
+        // causing the next customer in the queue to be shown instead.
     }
 
     private readonly List<Customer> _queue = new();
@@ -67,7 +102,8 @@ public class CustomerService {
     /// </summary>
     private void AddNewCustomer() {
         // Verify there is room in the service queue
-        if (_queue.Count > _maxSize) {
+        // The queue is full when the current count reaches the maximum size.
+        if (_queue.Count >= _maxSize) {
             Console.WriteLine("Maximum Number of Customers in Queue.");
             return;
         }
@@ -88,8 +124,18 @@ public class CustomerService {
     /// Dequeue the next customer and display the information.
     /// </summary>
     private void ServeCustomer() {
-        _queue.RemoveAt(0);
+        // Check if there is a customer available before trying to access the queue.
+        if (_queue.Count == 0) {
+            Console.WriteLine("No Customers in Queue.");
+            return;
+        }
+
+        // A queue follows FIFO, so the customer at index 0 should be served first.
         var customer = _queue[0];
+
+        // Remove the customer after saving the information that will be displayed.
+        _queue.RemoveAt(0);
+
         Console.WriteLine(customer);
     }
 
